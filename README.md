@@ -87,3 +87,79 @@ myObj.foo = "bar";
 console.log(Object.values(myObj)); // ['bar']
 ```
 
+## Метод call
+```
+func.call(context, arg1, arg2, ...)
+При этом вызывается функция func, первый аргумент call становится её this, а остальные передаются «как есть».
+```
+
+Вызов func.call(context, a, b...) – то же, что обычный вызов func(a, b...), но с явно указанным this(=context).
+
+Например, у нас есть функция showFullName, которая работает с this:
+```
+function showFullName() {
+  alert( this.firstName + " " + this.lastName );
+}
+```
+### Пока объекта нет, но это нормально, ведь JavaScript позволяет использовать this везде. Любая функция может в своём коде упомянуть this, каким будет это значение – выяснится в момент запуска.
+
+Вызов showFullName.call(user) запустит функцию, установив this = user, вот так:
+```
+function showFullName() {
+  alert( this.firstName + " " + this.lastName );
+}
+
+var user = {
+  firstName: "Василий",
+  lastName: "Петров"
+};
+
+// функция вызовется с this=user
+showFullName.call(user) // "Василий Петров"
+```
+
+После контекста в call можно передать аргументы для функции. Вот пример с более сложным вариантом showFullName, который конструирует ответ из указанных свойств объекта:
+```
+var user = {
+  firstName: "Василий",
+  surname: "Петров",
+  patronym: "Иванович"
+};
+
+function showFullName(firstPart, lastPart) {
+  alert( this[firstPart] + " " + this[lastPart] );
+}
+
+// f.call(контекст, аргумент1, аргумент2, ...)
+showFullName.call(user, 'firstName', 'surname') // "Василий Петров"
+showFullName.call(user, 'firstName', 'patronym') // "Василий Иванович"
+```
+
+## Метод apply
+#### Если нам неизвестно, с каким количеством аргументов понадобится вызвать функцию, можно использовать более мощный метод: apply.
+
+Вызов функции при помощи func.apply работает аналогично func.call, но принимает массив аргументов вместо списка.
+```
+func.call(context, arg1, arg2);
+// идентичен вызову
+func.apply(context, [arg1, arg2]);
+```
+
+В частности, эти две строчки сработают одинаково:
+```
+showFullName.call(user, 'firstName', 'surname');
+
+showFullName.apply(user, ['firstName', 'surname']);
+```
+
+```
+При помощи apply мы могли бы найти максимум в произвольном массиве, вот так:
+
+var arr = [];
+arr.push(1);
+arr.push(5);
+arr.push(2);
+
+// получить максимум из элементов arr
+alert( Math.max.apply(null, arr) ); // 5
+```
